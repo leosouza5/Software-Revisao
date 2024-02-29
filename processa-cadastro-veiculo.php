@@ -9,10 +9,16 @@ if(isset($_POST)){
 	$resultado = $conexao->inserir("INSERT INTO leonardo.carros (nome, marca, placa, cliente) VALUES ('" . $_POST['nome'] . "','" . $_POST['marca'] . "','" . $_POST['placa'] . "','" . $_POST['cliente'] . "')");
 
 
-	if ($resultado) {
-        header('location: carros.php?status=ok');
+	 if (isset($_GET['origem']) && $_GET['origem'] === 'listarCarros') {
+        $link = 'listarCarros.php';
     } else {
-        header('location: carros.php?status=falha');
+        $link = 'carros.php';
+    }
+
+    if ($resultado) {
+        header('location: ' . $link . '?status=ok');
+    } else {
+        header('location: ' . $link . '?status=falha');
     }
 
 }

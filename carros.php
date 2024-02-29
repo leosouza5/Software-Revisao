@@ -1,15 +1,11 @@
 <?php  
 
-if (!isset($_POST) || empty($_POST)) {
-    $listar = 'S';
+if (isset($_GET['acao']) && $_GET['acao'] == 'cadastrar') {
+        $listar = 'N';
     } else {
-        // Verifica se $_POST['acao'] está definido e é igual a 'listar'
-        if (isset($_POST['acao']) && $_POST['acao'] === 'listar') {
-            $listar = 'S';
-        } else {
-            $listar = 'N';
-        }
+        $listar = 'S';
     }
+
 
 
 require('db_services.php');
@@ -45,8 +41,8 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
 
         <div class="col-12 text-center" >
             
-            <button onclick="paginaPorPost('listar','carros.php')" class="btn btn-dark mr-2">Listar</button>
-            <button onclick="paginaPorPost('cadastro','carros.php')" class="btn btn-dark mr-2">Cadastrar</button>
+            <a href="carros.php" class="btn btn-dark mr-2">Listar</a>
+            <a href="carros.php?acao=cadastrar" class="btn btn-dark mr-2">Cadastrar</a>
             <a href="clientes.php" class="btn btn-dark mr-2">Voltar</a>
   
         </div>
@@ -59,59 +55,64 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
     <!-- Formulário de Cadastro de Veículo -->
 
     <?php 
-        if(isset($_POST) && isset($_POST['acao'])){
-        if($_POST['acao'] == 'cadastro'){
+        if($listar == 'N'){ 
      ?>
-        <form action="processa-cadastro-veiculo.php" method="POST" class="row no-gutters mt-2 p-3 rounded justify-content-center overflow-auto" style="height: 86vh;" id="form-cadveiculo">
+        <div id="div-mandar">
+            <form action="processa-cadastro-veiculo.php" method="POST" class="row no-gutters mt-2 p-3 rounded justify-content-center overflow-auto" style="height: 86vh;" id="form-cadveiculo">
 
-            <div class="col-md-8 ">
-                <h1>Cadastro de Veículo</h1>
+                <div class="col-md-8 ">
+                    <h1>Cadastro de Veículo</h1>
 
-                <!-- Nome do Veículo -->
-                 <div class="form-group rounded shadow p-4">
-                   <label for="dados-veiculo-nome">Nome do Veículo</label>
-                   <span style="display: none;" id="erro-veiculo-nome" class="alert alert-info ">Por favor, informe o nome do veículo</span>
-                   <input class="form-control" type="text" id="dados-veiculo-nome" maxlength="60" name="nome" required>
-                 </div>
+                    <!-- Nome do Veículo -->
+                     <div class="form-group rounded shadow p-4">
+                       <label for="dados-veiculo-nome">Nome do Veículo</label>
+                       <span style="display: none;" id="erro-veiculo-nome" class="alert alert-info ">Por favor, informe o nome do veículo</span>
+                       <input class="form-control" type="text" id="dados-veiculo-nome" maxlength="60" name="nome" required>
+                     </div>
 
-                    <!-- Marca do Veículo -->
-                 <div class="form-group rounded shadow p-4">
-                   <label for="dados-veiculo-marca">Marca do Veículo</label>
-                   <span style="display: none;" id="erro-veiculo-marca" class="alert alert-info ">Por favor, informe a marca do veículo</span>
-                   <select class="form-control" id="dados-veiculo-marca" name="marca" required>
-                        <option value="">Selecione a Marca</option>
-                        <?php foreach($listaMarca as $marca) { ?>
-                           <option value="<?= $marca['id_marca']?>"><?= $marca['nome']?></option>
-                        <?php } ?>
-                    </select>
-                 </div>
+                        <!-- Marca do Veículo -->
+                     <div class="form-group rounded shadow p-4">
+                       <label for="dados-veiculo-marca">Marca do Veículo</label>
+                       <span style="display: none;" id="erro-veiculo-marca" class="alert alert-info ">Por favor, informe a marca do veículo</span>
+                       <select class="form-control" id="dados-veiculo-marca" name="marca" required>
+                            <option value="">Selecione a Marca</option>
+                            <?php foreach($listaMarca as $marca) { ?>
+                               <option value="<?= $marca['id_marca']?>"><?= $marca['nome']?></option>
+                            <?php } ?>
+                        </select>
+                     </div>
 
-                 <!-- Placa do Veículo -->
-                 <div class="form-group rounded shadow p-4">
-                   <label for="dados-veiculo-placa">Placa do Veículo</label>
-                   <span style="display: none;" id="erro-veiculo-placa" class="alert alert-info ">Por favor, informe a placa do veículo</span>
-                   <input class="form-control" type="text" id="dados-veiculo-placa" name="placa" required>
-                 </div>
+                     <!-- Placa do Veículo -->
+                     <div class="form-group rounded shadow p-4">
+                       <label for="dados-veiculo-placa">Placa do Veículo</label>
+                       <span style="display: none;" id="erro-veiculo-placa" class="alert alert-info ">Por favor, informe a placa do veículo</span>
+                       <input class="form-control" type="text" id="dados-veiculo-placa" name="placa" required>
+                     </div>
 
-                 <!-- Cliente Proprietário -->
-                 <div class="form-group rounded shadow p-4">
-                   <label for="dados-veiculo-cliente">Cliente Proprietário</label>
-                   <span style="display: none;" id="erro-veiculo-cliente" class="alert alert-info ">Por favor, selecione o cliente proprietário</span>
-                   <select class="form-control" id="dados-veiculo-cliente" name="cliente" required>
-                       <option value="">Selecione o cliente</option>
-                       <?php foreach($listaClientes as $cliente) { ?>
-                           <option value="<?= $cliente['id']?>"><?= $cliente['nome_cliente']?></option>
-                       <?php } ?>
-                   </select>
-                 </div>
-                 
-            </div>
-        </form>
-        <div class="text-center">
-            <button onclick="validaFormVeiculo()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar</button>
+                     <!-- Cliente Proprietário -->
+                     <div class="form-group rounded shadow p-4">
+                       <label for="dados-veiculo-cliente">Cliente Proprietário</label>
+                       <span style="display: none;" id="erro-veiculo-cliente" class="alert alert-info ">Por favor, selecione o cliente proprietário</span>
+                       <select class="form-control" id="dados-veiculo-cliente" name="cliente" required>
+                           <option value="">Selecione o cliente</option>
+                           <?php foreach($listaClientes as $cliente) { ?>
+                               <option value="<?= $cliente['id']?>"><?= $cliente['nome_cliente']?></option>
+                           <?php } ?>
+                       </select>
+                     </div>
+
+                     <div class="text-center">
+                        <a href="#" onclick="validaFormVeiculo()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar</a href="#">
+                    </div>
+                     
+                </div>
+
+                
+            </form>
+            
         </div>
 
-    <?php } } ?>
+    <?php } ?>
 
 
 
@@ -119,7 +120,7 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
 
 <?php
 
-    $cont = 1;
+   $cont = 1;
 
  if($listar == 'S'){
             

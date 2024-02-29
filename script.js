@@ -1,3 +1,10 @@
+
+
+
+
+
+
+
 function soNumero(e){
     var tecla = e.which || e.keyCode;
     if (tecla < 48 || tecla > 57) {
@@ -21,6 +28,19 @@ function limparCPF(cpf) {
     return cpf;
 }
         
+
+
+
+function verificaRetorno(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+
+    if (status === 'ok') {
+        alert('Cadastro realizado com sucesso!');
+    } else if (status === 'falha') {
+        alert('Erro ao cadastrar. Por favor, tente novamente.');
+    }
+}
 
 
 
@@ -156,9 +176,9 @@ function validaFormClienteSemCpf(){
 
 function validaFormVeiculo() {
     var form = document.getElementById('form-cadveiculo');
-    var marcaVeiculo = document.getElementById('dados-veiculo-marca').value.trim();
-    var placaVeiculo = document.getElementById('dados-veiculo-placa').value;
-    var nomeVeiculo = document.getElementById('dados-veiculo-nome').value;
+    var marcaVeiculo = document.getElementById('dados-veiculo-marca').value
+    var placaVeiculo = document.getElementById('dados-veiculo-placa').value.trim();
+    var nomeVeiculo = document.getElementById('dados-veiculo-nome').value.trim();
     var clienteVeiculo = document.getElementById('dados-veiculo-cliente').value;
 
     var campoErroMarca = document.getElementById('erro-veiculo-marca');
@@ -273,21 +293,49 @@ function excluir() {
 
 
 
-function requestConteudo(link,div){
+function requestConteudo(link,divExterna,divInterna,origem){
 
     var ajax = new XMLHttpRequest();
-    ajax.open('GET', "carros.php", true);
+    ajax.open('GET', link, true);
     ajax.onreadystatechange = function () {
         if (ajax.readyState == 4 && ajax.status == 200) {
-            var resposta = JSON.parse(ajax.responseText);
-            if (resposta.existe) {
-                callback(true);
-            } else {
-                callback(false); 
-            }
+            var tempElement = document.createElement('div');
+
+            tempElement.innerHTML = ajax.responseText;
+
+
+
+            var divConteudo = tempElement.querySelector('#' + divExterna);
+
+
+            //Cria input contendo a origem para retornar
+
+            var origemInput = document.createElement('input');
+            origemInput.type = 'hidden';
+            origemInput.name = 'origem';
+            origemInput.value = origem;
+
+            divConteudo.appendChild(origemInput);
+
+
+
+
+
+            var divDinamica = document.getElementById(divInterna);
+
+            divDinamica.innerHTML = '';
+
+            divDinamica.appendChild(divConteudo);
+
+
+
+            
+
+
+        }else {
+            console.error('Erro ao carregar o conteúdo:', ajax.status);
         }
     };
-    // Envia o CPF para o script PHP
-    ajax.send('cpf=' + cpf);
+    ajax.send();
 
 }
