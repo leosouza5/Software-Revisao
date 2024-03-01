@@ -149,7 +149,17 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
               <td><?= $veiculo['nome']?></td>
               <td><?= $veiculo['marca']?></td>
               <td><?= $veiculo['nomecliente']?></td>
-              <td><button onclick="abrirAlterar(<?= $veiculo['id_carro'] ?>,'carros')" class="btn btn-warning">Alterar</button></td>
+              <td>
+                  <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Ações
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" onclick="abrirAlterar(<?= $veiculo['id_carro'] ?>,'carros')" href="#">Alterar</a>
+                        <a class="dropdown-item" href="#">Excluir</a>
+                      </div>
+                    </div>
+              </td>
             </tr>
            
         

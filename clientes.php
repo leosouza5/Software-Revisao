@@ -25,6 +25,8 @@
  <head>
  	<meta charset="utf-8">
  	<meta name="viewport" content="width=device-width, initial-scale=1">
+ 	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
  	<link rel="stylesheet" type="text/css" href="style.css">
 
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
@@ -46,7 +48,7 @@
  			
  			<a href="clientes.php"  class="btn btn-dark mr-2">Listar</a>
  			<a href="clientes.php?acao=cadastrar"  class="btn btn-dark mr-2">Cadastrar</a>
- 			<a href=""  class="btn btn-dark mr-2">Carros</a>
+ 			<a href="carros.php"  class="btn btn-dark mr-2">Carros</a>
  			<a href="index.php" class="btn btn-dark mr-2">Voltar</a>
 
   
@@ -101,11 +103,20 @@
 		      <td><?= $cliente['nome_cliente']?></td>
 		      <td><?= $cpfMudado?></td>
 		      <td><button onclick="abrirListaCarros('<?= $cpf?>')" class="btn btn-info">Visualizar</button></td>
-		      <td><button onclick="abrirAlterar('<?= $cpf?>','cliente')" class="btn btn-warning">Editar</button></td>
+		      <td>
+		      	<div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Ações
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" onclick="abrirAlterar('<?= $cpf?>','cliente')" href="#">Alterar</a>
+                    <a class="dropdown-item" onclick="excluir()" href="#">Excluir</a>
+                  </div>
+                </div>
+		      </td>
 		    </tr>
 		   
 		
- 
 
 
 			<?php } ?>

@@ -1,9 +1,11 @@
 <?php
 require('db_services.php');
 
-if(isset($_POST['id_cliente'])) {
+if(isset($_GET['regi'])) {
     
-    $id_cliente = $_POST['id_cliente'];
+    $id_cliente = $_GET['regi'];
+
+
 
     // Instancia a classe de serviço do banco de dados
     $conexao = new DbService();

@@ -34,10 +34,17 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
 
     <header style="background-color: #CF1223; height: 13vh;" class="row no-gutters cabecalho align-items-center shadow-sm">
 
-        <div class="col-12 d-flex justify-content-sm-around" >
-        
+        <div class="col-4 text-center" >
             <button onclick="window.close();" class="btn btn-dark mr-2">Voltar</button>
-            <button onclick="requestConteudo('carros.php?acao=cadastrar','form-cadveiculo','divDinamica','listarCarros')" class="btn btn-dark"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        
+        <div class="col-4 text-center">
+            <H1 style="font-size: 2rem; color:white;" >Relatorio de veiculos <br>Cliente : <?= $listaVeiculos[0]['nomecliente'] ?> </H1>
+        </div>
+            
+        <div class="col-4 text-center">
+            <button onclick="alternar('div-hidden','div-lista');" class="btn btn-dark"><i class="fa-solid fa-plus"></i></button>            
+        </div>
   
         </div>
           
@@ -56,7 +63,7 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
     $cont = 1;            
          ?>
   
-   <div style="height: 86vh;" class="row no-gutters overflow-auto">
+   <div id="div-lista" style="height: 86vh;" class="row no-gutters overflow-auto">
 
 
 
@@ -93,11 +100,9 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
 
 
 
-    <?php 
-        if($listar == 'N'){ 
-     ?>
-        <div id="div-mandar">
-            <form action="processa-cadastro-veiculo.php" method="POST" class="row no-gutters mt-2 p-3 rounded justify-content-center overflow-auto" style="height: 86vh;" id="form-cadveiculo">
+    
+        <div id="div-hidden" hidden>
+            <form action="processa-cadastro-veiculo.php?origem=listarCarros" method="POST" class="row no-gutters mt-2 p-3 rounded justify-content-center overflow-auto" style="height: 86vh;" id="form-cadveiculo">
 
                 <div class="col-md-8 ">
                     <h1>Cadastro de Veículo</h1>
@@ -128,30 +133,19 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
                        <input class="form-control" type="text" id="dados-veiculo-placa" name="placa" required>
                      </div>
 
-                     <!-- Cliente Proprietário -->
-                     <div class="form-group rounded shadow p-4">
-                       <label for="dados-veiculo-cliente">Cliente Proprietário</label>
-                       <span style="display: none;" id="erro-veiculo-cliente" class="alert alert-info ">Por favor, selecione o cliente proprietário</span>
-                       <select class="form-control" id="dados-veiculo-cliente" name="cliente" required>
-                           <option value="">Selecione o cliente</option>
-                           <?php foreach($listaClientes as $cliente) { ?>
-                               <option value="<?= $cliente['id']?>"><?= $cliente['nome_cliente']?></option>
-                           <?php } ?>
-                       </select>
-                     </div>
+                     <input type="hidden" name="cliente" value="<?= $id ?>">
+
 
                      <div class="text-center">
-                        <a href="#" onclick="validaFormVeiculo()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar</a href="#">
+                        <a href="#" onclick="validaFormVeiculo()" class="btn btn-info" style="color: white;font-weight: 500;">Confirmar</a href="#">
+                        <a href="#" onclick="alternar('div-lista','div-hidden');" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Cancelar</a href="#">
                     </div>
                      
                 </div>
 
-                
             </form>
             
         </div>
-
-    <?php } ?>
 
 
 

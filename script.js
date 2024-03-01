@@ -43,6 +43,21 @@ function verificaRetorno(){
 }
 
 
+function alternar(id1,id2){
+    div1 = document.getElementById(id1);
+    div2 = document.getElementById(id2);
+
+    console.log(div1.getAttribute("hidden"))
+
+
+    if(div1.getAttribute("hidden") != null){
+        div2.setAttribute("hidden","");
+        div1.removeAttribute("hidden");
+    }
+
+
+}
+
 
 
 
@@ -176,48 +191,65 @@ function validaFormClienteSemCpf(){
 
 function validaFormVeiculo() {
     var form = document.getElementById('form-cadveiculo');
-    var marcaVeiculo = document.getElementById('dados-veiculo-marca').value
-    var placaVeiculo = document.getElementById('dados-veiculo-placa').value.trim();
-    var nomeVeiculo = document.getElementById('dados-veiculo-nome').value.trim();
-    var clienteVeiculo = document.getElementById('dados-veiculo-cliente').value;
+    var marcaVeiculo = document.getElementById('dados-veiculo-marca');
+    var placaVeiculo = document.getElementById('dados-veiculo-placa');
+    var nomeVeiculo = document.getElementById('dados-veiculo-nome');
+    var clienteVeiculo = document.getElementById('dados-veiculo-cliente');
 
     var campoErroMarca = document.getElementById('erro-veiculo-marca');
-    var campoErroNome= document.getElementById('erro-veiculo-nome');
+    var campoErroNome = document.getElementById('erro-veiculo-nome');
     var campoErroPlaca = document.getElementById('erro-veiculo-placa');
     var campoErroCliente = document.getElementById('erro-veiculo-cliente');
 
-      if (nomeVeiculo == '') {
-        campoErroNome.style.display = 'inherit'; // verifica se existe um modelo informado
+    if (nomeVeiculo && marcaVeiculo && placaVeiculo) {
+        nomeVeiculo = nomeVeiculo.value.trim();
+        marcaVeiculo = marcaVeiculo.value;
+        placaVeiculo = placaVeiculo.value.trim();
+    } else {
+        console.error("Um ou mais elementos não foram encontrados no DOM.");
+        return;
+    }
+
+    if (nomeVeiculo.trim() === '') {
+        campoErroNome.style.display = 'inherit';
         return;
     } else {
         campoErroNome.style.display = 'none';
     }
 
-
-    if (marcaVeiculo == '') {
-        campoErroMarca.style.display = 'inherit'; // verifica se existe uma marca informada
+    if (marcaVeiculo === '') {
+        campoErroMarca.style.display = 'inherit';
         return;
     } else {
         campoErroMarca.style.display = 'none';
     }
 
-  
     if (placaVeiculo.length < 7 || placaVeiculo.length > 8) {
-        campoErroPlaca.style.display = 'inherit'; // verifica se a placa está no formato correto
+        campoErroPlaca.style.display = 'inherit';
         return;
     } else {
         campoErroPlaca.style.display = 'none';
     }
 
-    if (clienteVeiculo == '') {
-        campoErroCliente.style.display = 'inherit'; // verifica se a placa está no formato correto
-        return;
-    } else {
-        campoErroCliente.style.display = 'none';
-    }   
+    if (clienteVeiculo) {
+        clienteVeiculo = clienteVeiculo.value;
+        if (clienteVeiculo === '') {
+            campoErroCliente.style.display = 'inherit';
+            return;
+        } else {
+            campoErroCliente.style.display = 'none';
+        }
+    }
 
-    form.submit();
+    form.submit(); // Submete o formulário somente se não houver erros
 }
+
+
+
+
+
+
+
 function validaFormRevisao() {
     var form = document.getElementById('form-cadrevisao');
     var observacao = document.getElementById('observacao').value.trim();
@@ -285,9 +317,22 @@ function verificarCPF(cpf,callback) {
 }
 
 
-function excluir() {
-    if (confirm('Tem certeza de que deseja excluir este carro?')) {
-        document.getElementById('form-excluir').submit();
+function excluir(regi,tabela) {
+    if (confirm('Tem certeza de que deseja excluir este registro ?')) {
+        switch(tabela){
+        case 'cliente':
+            window.location.href = 'processa-exclusao-cliente?regi=' + regi + '&origem=' + tabela;
+            break;
+
+        case 'veiculo':
+            window.location.href = 'processa-exclusao-veiculo?regi=' + regi + '&origem=' + tabela;
+            break;
+
+        case 'revisao':
+            window.location.href = 'processa-exclusao-revisao?regi=' + regi + '&origem=' + tabela;
+            break;
+
+        }
     }
 }
 
