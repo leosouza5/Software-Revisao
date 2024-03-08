@@ -14,6 +14,8 @@ if(isset($_POST)){
     $genero = $_POST['genero'];
     $telefone = $_POST['telefone'];
 
+    $telefone = limparTelefone($telefone);
+
 
 
 	$resultado = $conexao->inserir("INSERT INTO leonardo.clientes (id,nome_cliente,genero,telefone) VALUES ('$cpf','$nome','$genero','$telefone')");

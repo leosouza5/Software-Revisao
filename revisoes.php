@@ -1,23 +1,21 @@
 <?php  
 
+require('header.php');
+
 require('db_services.php');
 
-if (!isset($_POST) || empty($_POST)) {
-    $listar = 'S';
+if (isset($_GET['acao']) && $_GET['acao'] == 'cadastrar') {
+        $listar = 'N';
     } else {
-        if (isset($_POST['acao']) && $_POST['acao'] === 'listar') {
-            $listar = 'S';
-        } else {
-            $listar = 'N';
-        }
-    }
+        $listar = 'S';
+}
 
 $conexao = new DbService();
 $listaClientes = $conexao->recuperar("*", "clientes", "", "nome_cliente");
 
 $listaCarros = $conexao->recuperar("*", "carros", "", "nome");
 $listaRevisoes = $conexao->recuperar("*","vw_revisao","","data");
-print_r($listaRevisoes);
+
 
 
 ?>
@@ -35,17 +33,9 @@ print_r($listaRevisoes);
 </head>
 <body style="background-color: #eee;">
 
-<header style="background-color: #CF1223; height: 13vh;" class="row no-gutters cabecalho align-items-center shadow-sm">
-    <div class="col-12 text-center" >
-        <button onclick="paginaPorPost('listar','revisoes.php')" class="btn btn-dark mr-2">Listar</button>
-        <button onclick="paginaPorPost('cadastro','revisoes.php')" class="btn btn-dark mr-2">Cadastrar</button>
-        <a href="index.php" class="btn btn-dark mr-2">Voltar</a>
-    </div>
-</header>
 
-<div class="row no-gutters justify-content-center mt-2"></div>
 
-<?php if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['acao'] === 'cadastro') { ?>
+<?php if($listar == 'N'){  ?>
     <form action="processa-cadastro-revisao.php" method="POST" class="row no-gutters mt-2 p-3 rounded justify-content-center overflow-auto" style="height: 86vh;" id="form-cadrevisao">
         <div class="col-md-8 ">
             <h1>Cadastro de Revisão</h1>
@@ -57,7 +47,7 @@ print_r($listaRevisoes);
             <div class="form-group rounded shadow p-4">
                 <label for="cliente">Cliente</label>
                 <span style="display: none;" id="erro-revisao-cliente" class="alert alert-info ">Por favor, informe um cliente valido!</span>
-                <select class="form-control" id="cliente" name="cliente" required>
+                <select onchange="recuperarCarros(this.value)" class="form-control" id="cliente" name="cliente" required>
                     <option value="">Selecione o cliente</option>
                     <?php foreach($listaClientes as $cliente) { ?>
                         <option value="<?= $cliente['id']?>"><?= $cliente['nome_cliente']?></option>
@@ -69,9 +59,6 @@ print_r($listaRevisoes);
                 <span style="display: none;" id="erro-revisao-carro" class="alert alert-info ">Por favor, informe um carro válido!</span>
                 <select class="form-control" id="carro" name="carro" required>
                     <option value="">Selecione o carro</option>
-                    <?php foreach($listaCarros as $carro) { ?>
-                        <option value="<?= $carro['id_carro']?>"><?= $carro['nome']?></option>
-                    <?php } ?>
                 </select>
             </div>
             <div class="form-group rounded shadow p-4">
@@ -81,9 +68,11 @@ print_r($listaRevisoes);
             </div>
         </div>
     </form>
-    <div class="text-center">
-        <button onclick="validaFormRevisao()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar</button>
-    </div>
+    <div class="row fixed-bottom bg-dark">
+            <div class="col-12 text-center py-2">
+                <button id="enviar" onclick="validaFormRevisao()" class="btn btn-light" style="font-weight: 500;">Confirmar</button>
+            </div>
+        </div>
 <?php } ?>
 
 
@@ -115,7 +104,6 @@ print_r($listaRevisoes);
 
                 $data = explode('-',$revisao['data']);
 
-                print_r($data);
                 $data = "$data[2]/$data[1]/$data[0]";
 
                 ?>

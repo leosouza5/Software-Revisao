@@ -10,19 +10,41 @@ if(isset($_GET['regi'])) {
     // Instancia a classe de serviço do banco de dados
     $conexao = new DbService();
 
-    // Executa a função para excluir o carro do banco de dados
+    //Verificar se o cliente tem carros cadastrados
+
+    $temCarro = $conexao->recuperar("COUNT(*)","carros","cliente = '$id_cliente'","");
+
+
+    //Verifica se o cliente tem revisoes
+    $temRevisao = $conexao->recuperar("COUNT(*)","revisoes","cliente = '$id_cliente'","");
+
+
+    if($temCarro[0]['count'] > 0){
+        $excluirCarros = $conexao->remover("carros","cliente = '$id_cliente'");
+        echo "Deletei os carros... ";
+    }
+
+    if($temRevisao[0]['count'] > 0){
+        $excluirRevisoes = $conexao->remover("revisoes","cliente = '$id_cliente'");
+        echo 'Deletei as revisões...';
+    }
+
+
+
     $exclusao = $conexao->remover('clientes', "id = '$id_cliente'");
 
+
     if($exclusao) {
-        header("Location: cliente-acao.php?regi=" . $_GET['regi'] . "&status=ok");
+        echo "Exclusão do cliente realizada com sucesso!!";
         exit();
     } else {
   
-        header("Location: cliente-acao.php?regi=" . $_GET['regi'] . "&status=falha");
+        echo "OIII";
         exit();
     }
+
 } else {
-    header("Location: cliente-acao.php?status=nada");
+
     exit();
 }
 ?>

@@ -2,22 +2,7 @@
 
 	require_once "conexao.php";
 
-	/*$cadprodu_services = new ProdutoService();
-
- 
-		if (isset($_GET['metodo']) && method_exists($cadprodu_services, $_GET['metodo'])) {
-
-			$campo = isset($_GET['campo']) ? $_GET['campo'] : null;
-			$tabela = isset($_GET['tabela']) ? $_GET['tabela'] : null;
-			$where = isset($_GET['where']) ? $_GET['where'] : null;
-			$order = isset($_GET['order']) ? $_GET['order'] : null;
-
-		    $cadprodu_services->{$_GET['metodo']}($campo,$tabela,$where,$order);
-
-
-		} else {
-		    echo "Método não encontrado!";
-		}*/
+	
 	
 
 	Class DbService {
@@ -25,6 +10,7 @@
 		public function __construct() {
 			$this->conexao = (new Conexao())->conectar();
 		}
+
 
 
 		
@@ -61,7 +47,7 @@
 			} catch (PDOException $e) {
 				return $e;
 			}
-				}
+		}
 
 
 
@@ -169,18 +155,17 @@
 
 
 
-				$sql = "DELETE FROM leonardo." . $tabela;
+				$sql = "DELETE FROM " . $tabela;
 
 				if(!empty($where)){
 					$sql .= " WHERE $where";
 				}
 
-		       echo $sql;
+		       #echo $sql;
 
 
 				$stmt = $pdo->prepare($sql);
-				#$stmt->bindParam(':campo', $campo);
-				#$stmt->bindParam(':id', $id);
+
 				
 				if($stmt->execute()){
 
@@ -188,13 +173,13 @@
 				     return $resultados;
 
 				}else{
-				    
 				    print_r($stmt->errorInfo());
 				}
 
 				
 			} catch (PDOException $e) {
 				return $e;
+
 			}
 
 
@@ -207,12 +192,6 @@
 				
 				$conexao = new Conexao();
 				$pdo = $conexao->conectar();
-
-				
-				echo ' to aqui';
-
-
-
 				
 				$stmt = $pdo->prepare($sql);
 				
@@ -233,6 +212,43 @@
 		}
 	}
 
+
+
+	if(isset($_GET['metodo']) && $_GET['metodo'] != ''){
+
+		$dados = array();
+
+		$metodo = base64_decode($_GET['metodo']);
+		$resultados = explode(';',$metodo);
+
+		foreach($resultados as $resultado){
+			list($chave,$valor) = explode(':',$resultado);
+			
+			$dados[$chave] = $valor;
+
+		}
+
+		#print_r($dados);
+
+		$operacao = $dados['funcao'];
+
+		switch($operacao){
+			case 'recuperar' :
+				$where = $dados['where'] == 'nada' ? '' : $dados['where'];
+				$tabela = $dados['tabela'];
+				$campos = $dados['campos'];
+				$orderby = $dados['orderby'] == 'nada' ? '' : $dados['orderby'];
+
+				$conexao = new DbService();
+				$resultado = json_encode($conexao->recuperar($campos,$tabela,$where,$orderby));
+				
+				echo $resultado;
+
+				break;
+		};
+
+
+	}
 
 
 

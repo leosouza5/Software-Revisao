@@ -1,5 +1,163 @@
+var listaCliente = [];
+
+console.log(listaCliente)
 
 
+window.addEventListener('load', function() {
+    limparParametrosURL();
+});
+
+
+
+function buscarCliente(){
+    let pesquisa = document.getElementById('pes_filtro_texto').value.trim();
+    let tipo = document.getElementById('pes_filtro_parametro').value;
+
+    let tbody = document.getElementById('tabela-clientes');
+    tbody.innerHTML = '';
+    let contador = 1;
+
+    listaCliente.forEach(function(valor){
+        parametro = tipo == 'nome_cliente' ? valor.nome_cliente : valor.id;
+        if(parametro.indexOf(pesquisa) != -1){  
+            let tr = document.createElement('tr');
+                tr.innerHTML = `
+                  <th scope="row">${contador}</th>
+                  <td>${valor.nome_cliente}</td>
+                  <td>${valor.id}</td>
+                  <td><button onclick="abrirListaCarros('${valor.id}')" class="btn btn-info">Visualizar</button></td>
+                  <td>
+                    <div class="dropdown">
+                      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Ações
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" onclick="abrirAlterar('${valor.id}','cliente')" href="#">Alterar</a>
+                        <a class="dropdown-item" onclick="excluir('${valor.id}','cliente')" href="#">Excluir</a>
+                      </div>
+                    </div>
+                  </td>
+                `;
+
+                tbody.appendChild(tr);
+                contador++;
+
+        }
+    });
+
+
+}
+
+function recuperarListaClientes(metodo){
+
+
+        var metodoString ="funcao:recuperar;tabela:clientes;campos:*;where:nada;orderby:nome_cliente";
+
+        console.log(metodoString)
+        let metodo64 = btoa(metodoString);
+
+        link = "db_services.php?metodo=" + metodo64;
+
+        console.log(link);
+        if(!document.getElementById('loading')){        //INSERE LOADING
+            let imgLoading = document.createElement('img')
+            imgLoading.id = 'loading'
+            imgLoading.src = 'img/loading.gif'
+            imgLoading.width = 50;
+            imgLoading.className = 'rounded mx-auto d-block'
+            document.getElementById('carregando').appendChild(imgLoading);
+        }
+
+        chamarAjax(link,function(resultado){
+
+            let tbody = document.getElementById('tabela-clientes');
+            tbody.innerHTML = '';
+            let contador = 1;
+            
+           document.getElementById('loading').remove()    //REMOVE LOADING
+
+            resultado.forEach(function(valor,indice){
+
+                listaCliente.push(valor);
+                
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                      <th scope="row">${contador}</th>
+                      <td>${valor.nome_cliente}</td>
+                      <td>${valor.id}</td>
+                      <td><button onclick="abrirListaCarros('${valor.id}')" class="btn btn-info">Visualizar</button></td>
+                      <td>
+                        <div class="dropdown">
+                          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Ações
+                          </button>
+                          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" onclick="abrirAlterar('${valor.id}','cliente')" href="#">Alterar</a>
+                            <a class="dropdown-item" onclick="excluir('${valor.id}','cliente')" href="#">Excluir</a>
+                          </div>
+                        </div>
+                      </td>
+                `;
+
+                tbody.appendChild(tr);
+                contador++;
+
+            });
+            
+        });
+
+    
+}
+
+
+function recuperarCarros(cliente){
+    var metodoString = "funcao:recuperar;tabela:carros;campos:id_carro,nome;where:cliente='" + cliente + "'";
+
+    var metodo64 = btoa(metodoString);
+
+    link ="db_services.php?metodo=" + metodo64;
+
+    chamarAjax(link,function(resultado){
+        let select = document.getElementById('carro');
+        
+        select.innerHTML = '';
+
+        if(!resultado || resultado.length === 0){
+            option =  document.createElement('option');
+            option.value = ''
+            option.innerHTML = "Nenhum Carro cadastrado!"          //pegando o nome e id do carro atribuindo a um OPTION e inserindo no select
+            select.appendChild(option);
+        }else{
+            resultado.forEach(function(valor,indice){
+                option =  document.createElement('option');
+                option.value = valor.id_carro;
+                option.innerHTML = valor.nome;          //pegando o nome e id do carro atribuindo a um OPTION e inserindo no select
+                select.appendChild(option);
+            });
+        }
+    });
+
+    
+}
+
+
+function chamarAjax(link,callback){
+    ajax = new XMLHttpRequest();
+
+    ajax.open('GET',link,true); 
+
+    ajax.onreadystatechange = () => {
+        if(ajax.status == 200 && ajax.readyState == 4){
+
+            let resultado = JSON.parse(ajax.responseText);
+            console.log(resultado)
+
+            callback(resultado);            
+        }
+    };
+
+    ajax.send();
+}
 
 
 
@@ -12,6 +170,7 @@ function soNumero(e){
     }
 }
 
+
 function mascaraCPF(campo) {
     campo.maxLength = 14; // Define o tamanho máximo do campo
     var valor = campo.value.replace(/\D/g, ''); // Remove caracteres não numéricos
@@ -19,7 +178,78 @@ function mascaraCPF(campo) {
     valor = valor.replace(/(\d{3})(\d)/, '$1.$2'); // Adiciona o ponto após o sexto dígito
     valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2'); // Adiciona o traço após o nono dígito, se houver
     campo.value = valor; // Define o valor formatado no campo
-    validarCPF(campo); // Chama a função de validação
+}
+
+function mascaraCelular(campo) {
+    campo.maxLength = 15; // Define o tamanho máximo do campo
+    var valor = campo.value.replace(/\D/g, ''); // Remove caracteres não numéricos
+    valor = valor.replace(/^(\d{2})(\d)/g, '($1) $2'); // Adiciona o parêntese após o segundo dígito
+    valor = valor.replace(/(\d{5})(\d)/, '$1-$2'); // Adiciona o hífen após o quinto dígito
+    campo.value = valor; // Define o valor formatado no campo
+}
+
+
+
+function validaCPF(cpf){
+
+    if(cpf != '' && !calculoValidaCPF(cpf)){
+        alert("CPF INVALIDO")
+        document.getElementById('dados-cliente-cpf').value = '';
+        document.getElementById('enviar').disabled = true;
+    }else{
+        document.getElementById('enviar').disabled = false;
+    }
+
+
+    
+}
+
+function calculoValidaCPF(cpf) {
+    // Remover caracteres não numéricos
+    cpf = cpf.replace(/[^\d]/g, '');
+    
+    // Verificar se o CPF possui 11 dígitos
+    if (cpf.length !== 11) {
+        return false;
+    }
+    
+    // Verificar se todos os dígitos são iguais
+    var cpfInvalidos = [
+        '00000000000', '11111111111', '22222222222', '33333333333', '44444444444',
+        '55555555555', '66666666666', '77777777777', '88888888888', '99999999999'
+    ];
+    if (cpfInvalidos.includes(cpf)) {
+        return false;
+    }
+
+    // Calcular o primeiro dígito verificador
+    var soma = 0;
+    for (var i = 0; i < 9; i++) {
+        soma += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    var resto = soma % 11;
+    var digitoVerificador1 = (resto < 2) ? 0 : 11 - resto;
+
+    // Verificar o primeiro dígito verificador
+    if (parseInt(cpf.charAt(9)) !== digitoVerificador1) {
+        return false;
+    }
+
+    // Calcular o segundo dígito verificador
+    soma = 0;
+    for (var i = 0; i < 10; i++) {
+        soma += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    resto = soma % 11;
+    var digitoVerificador2 = (resto < 2) ? 0 : 11 - resto;
+
+    // Verificar o segundo dígito verificador
+    if (parseInt(cpf.charAt(10)) !== digitoVerificador2) {
+        return false;
+    }
+
+    // Se todas as verificações passaram, o CPF é válido
+    return true;
 }
 
 function limparCPF(cpf) {
@@ -54,8 +284,6 @@ function alternar(id1,id2){
         div2.setAttribute("hidden","");
         div1.removeAttribute("hidden");
     }
-
-
 }
 
 
@@ -132,7 +360,7 @@ function validaFormCliente(){
                 campoErroCpf.style.display = 'inherit';
             } else {
                 campoErroCpf.style.display = 'none';
-                if (TelCliente.length < 8 || TelCliente.length > 11) {
+                if (TelCliente.length != 15) {
                     campoErroTel.style.display = 'inherit';  //verifica se telefone esta no padrao
                     return;
                 } else {
@@ -177,7 +405,7 @@ function validaFormClienteSemCpf(){
         return;
     }else {
         campoErroCpf.style.display = 'none';
-        if (TelCliente.length < 8 || TelCliente.length > 11) {
+        if (TelCliente.length > 15) {
             campoErroTel.style.display = 'inherit';  //verifica se telefone esta no padrao
             return;
         } else {
@@ -317,24 +545,45 @@ function verificarCPF(cpf,callback) {
 }
 
 
-function excluir(regi,tabela) {
-    if (confirm('Tem certeza de que deseja excluir este registro ?')) {
-        switch(tabela){
-        case 'cliente':
-            window.location.href = 'processa-exclusao-cliente?regi=' + regi + '&origem=' + tabela;
-            break;
+function excluir(regi, tabela) {
+    if (confirm('Tem certeza de que deseja excluir este registro e todos os seus vinculos ??')) {
+        var link;
+        switch(tabela) {
+            case 'cliente':
+                link = 'processa-exclusao-cliente.php?regi=' + regi + '&origem=' + tabela;
+                break;
 
-        case 'veiculo':
-            window.location.href = 'processa-exclusao-veiculo?regi=' + regi + '&origem=' + tabela;
-            break;
+            case 'veiculo':
+                link = 'processa-exclusao-veiculo.php?regi=' + regi + '&origem=' + tabela;
+                break;
 
-        case 'revisao':
-            window.location.href = 'processa-exclusao-revisao?regi=' + regi + '&origem=' + tabela;
-            break;
-
+            case 'revisao':
+                link = 'processa-exclusao-revisao.php?regi=' + regi + '&origem=' + tabela;
+                break;
         }
+
+        var ajax = new XMLHttpRequest();
+
+        ajax.open('GET', link, true);
+
+        ajax.onreadystatechange = function () {
+            if (ajax.readyState == 4) {
+                if (ajax.status == 200) {
+                    alert(ajax.responseText); // Exibir resposta do servidor em um alerta
+                    location.reload();
+                } else {
+                    alert("Erro: " + ajax.status); // Exibir mensagem de erro se houver algum problema com a requisição
+                }
+            }
+        };
+
+        ajax.send();
+
     }
+
+
 }
+
 
 
 
@@ -384,3 +633,11 @@ function requestConteudo(link,divExterna,divInterna,origem){
     ajax.send();
 
 }
+
+
+
+
+function limparParametrosURL() {
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+

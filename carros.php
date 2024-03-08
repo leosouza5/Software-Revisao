@@ -1,4 +1,6 @@
-<?php  
+<?php
+
+require('header.php');  
 
 if (isset($_GET['acao']) && $_GET['acao'] == 'cadastrar') {
         $listar = 'N';
@@ -35,22 +37,7 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
 </head>
 <body style="background-color: #eee;">
 
-    <!-- CABECALHO SITE -->
-
-    <header style="background-color: #CF1223; height: 13vh;" class="row no-gutters cabecalho align-items-center shadow-sm">
-
-        <div class="col-12 text-center" >
-            
-            <a href="carros.php" class="btn btn-dark mr-2">Listar</a>
-            <a href="carros.php?acao=cadastrar" class="btn btn-dark mr-2">Cadastrar</a>
-            <a href="clientes.php" class="btn btn-dark mr-2">Voltar</a>
-  
-        </div>
-          
-    </header>
-
-    <div class="row no-gutters justify-content-center mt-2">
-    </div>
+    
 
     <!-- Formulário de Cadastro de Veículo -->
 
@@ -101,8 +88,10 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
                        </select>
                      </div>
 
-                     <div class="text-center">
-                        <a href="#" onclick="validaFormVeiculo()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar</a href="#">
+                     <div class="row fixed-bottom bg-dark">
+                        <div class="col-12 text-center py-2">
+                            <button id="enviar" onclick="validaFormRevisao()" class="btn btn-light" style="font-weight: 500;">Confirmar</button>
+                        </div>
                     </div>
                      
                 </div>

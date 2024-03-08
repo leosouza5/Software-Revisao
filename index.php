@@ -1,4 +1,5 @@
 <?php 
+require('header.php');
 
  ?>
 
@@ -17,23 +18,7 @@
  </head>
  <body style="background-color: #202326; height: 100vh;">
 
- 	<!--CABECALHO SITE-->
-
- 	<header style="background-color: #CF1223; height: 13vh;" class="row no-gutters cabecalho align-items-center shadow-sm">
-
- 		<div class="col-12 text-center" >
- 			
- 			<a href="clientes.php" style="color:white;" class="btn btn-dark mr-2">Clientes</a>
- 			<a href="revisoes.php" style="color:white;" class="btn btn-dark mr-2">Revisões</a>
- 			<a href="relatorios.php" style="color:white;" class="btn btn-dark mr-2">Relatorios</a>
-
- 		</div>
-	      
-    </div>
-
-
-  
-  </header>
+ 	
 
   <div class="row no-gutters justify-content-center mt-2">
 

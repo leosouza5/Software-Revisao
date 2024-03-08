@@ -1,5 +1,7 @@
 <?php  
 
+	require('header.php');
+
 	if (isset($_GET['acao']) && $_GET['acao'] == 'cadastrar') {
         $listar = 'N';
     } else {
@@ -7,13 +9,7 @@
     }
 
 
-		require('funcoes.php');
-		require('db_services.php');
-
-		$conexao = new DbService();
-
-		$listaCliente = $conexao->recuperar("*","clientes","","nome_cliente");
-
+		
 		#print_r($listaCliente);
 	
 
@@ -34,33 +30,9 @@
 	<script src="bootstrap/js/bootstrap.min.js"></script>
  	<title>Software-Revisao</title>
  </head>
- <body style="background-color: #eee;">
+ <body onload="recuperarListaClientes('principal')"  style="background-color: #eee;">
 
- 	<!--CABECALHO SITE-->
-
- 	<header style="background-color: #CF1223; height: 13vh;" class="row no-gutters cabecalho align-items-center shadow-sm">
-
- 		<div class="col-6 text-center">
- 			<h1 class="text-white"><?php if($listar =='N'){echo 'Cadastro';}else{echo 'Listar';} ?> Proprietários</h1>
- 		</div>
-
- 		<div class="col-6 text-center" >
- 			
- 			<a href="clientes.php"  class="btn btn-dark mr-2">Listar</a>
- 			<a href="clientes.php?acao=cadastrar"  class="btn btn-dark mr-2">Cadastrar</a>
- 			<a href="carros.php"  class="btn btn-dark mr-2">Carros</a>
- 			<a href="index.php" class="btn btn-dark mr-2">Voltar</a>
-
-  
- 		</div>
-	      
-
-
-   	
-  </header>
-
-  <div class="row no-gutters justify-content-center mt-2">
-  </div>
+ 
 
 <!-- Lista Clientes-->
 
@@ -74,7 +46,25 @@
   
    <div style="height: 77vh;" class="row no-gutters overflow-auto">
   		<div class="col-12">
-			<table class="table table-striped text-center">
+  				<div class="row no-gutters">
+  					<div class="col-4"><h1 class="my-3">Clientes</h1></div>
+
+  					<div class="col-2 text-center align-items-center" id="carregando"></div>
+
+  					<div class="col-6">
+  					
+  						<div class="input-group my-3">
+						  <div class="input-group-prepend" id="button-addon3">
+						    <select class="custom-select" name="asda" id="pes_filtro_parametro">
+						    	<option value="nome_cliente">Nome</option>
+						    	<option value="cpf">CPF</option>
+						    </select>
+						  </div>
+						  <input type="text" onkeyup="buscarCliente()" class="form-control" placeholder="" id="pes_filtro_texto" aria-label="Example text with two button addons" aria-describedby="button-addon3">
+						</div>
+  					</div>
+  				</div>
+			<table id="table-lista-clientes" class="table table-striped text-center">
 			  <thead>
 			    <tr>
 			      <th scope="col">#</th>
@@ -84,43 +74,11 @@
 			      <th scope="col">Edicao</th>
 			    </tr>
 			  </thead>
-			  <tbody>
-
-			<?php foreach($listaCliente as $cliente){ 
-
-
-				$cpf = $cliente['id'];
-
-				$cpfMudado = limparCPF($cpf); 
-
-				?>
-
-
-				
-		  
-		    <tr>
-		      <th scope="row"><?=$cont++?></th>
-		      <td><?= $cliente['nome_cliente']?></td>
-		      <td><?= $cpfMudado?></td>
-		      <td><button onclick="abrirListaCarros('<?= $cpf?>')" class="btn btn-info">Visualizar</button></td>
-		      <td>
-		      	<div class="dropdown">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Ações
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" onclick="abrirAlterar('<?= $cpf?>','cliente')" href="#">Alterar</a>
-                    <a class="dropdown-item" onclick="excluir()" href="#">Excluir</a>
-                  </div>
-                </div>
-		      </td>
-		    </tr>
-		   
-		
-
-
-			<?php } ?>
+			  <tbody  id="tabela-clientes">
 			 </tbody>
+
+			 
+			 	
 			</table>
 		</div>
 	</div>
@@ -168,7 +126,7 @@
 			     <div class="form-group rounded shadow p-4">
 			       <label for="dados-cliente-cpf">CPF/CNPJ</label>
 			       <span style="display: none;" id="erro-cliente-cpf" class="alert alert-info ">Porfavor informe um CPF/CNPJ válido</span>
-			       <input class="form-control" onkeypress="soNumero(event);" oninput="mascaraCPF(this)"  type="text" id="dados-cliente-cpf" maxlength="14" name="cpf-cnpj" required>
+			       <input class="form-control" onkeypress="soNumero(event);" oninput="mascaraCPF(this)" onblur="validaCPF(this.value)" type="text" id="dados-cliente-cpf" maxlength="14" name="cpf-cnpj" required>
 			     </div>
 
 			     <!-- TELEFONE-->
@@ -176,14 +134,16 @@
 			     <div class="form-group rounded shadow p-4">
 				   <label for="dados-cliente-tel">Telefone</label>
 			       <span style="display: none;" id="erro-cliente-tel" class="alert alert-info ">Porfavor informe um Número válido</span>
-			       <input class="form-control" type="text" maxlength="11" onkeypress="soNumero(event);" id="dados-cliente-tel" placeholder="Exemplo : 67999999999" name="telefone" required>
+			       <input class="form-control" oninput="mascaraCelular(this)" type="text" maxlength="11" onkeypress="soNumero(event);" id="dados-cliente-tel" placeholder="Exemplo : 67999999999" name="telefone" required>
 				 </div>
 				 
 	 		</div>
 		</form>
-		<div class="text-center">
-		 	<button onclick="validaFormCliente()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar</button>
-		</div>
+		<div class="row fixed-bottom bg-dark">
+	        <div class="col-12 text-center py-2">
+	            <button id="enviar" onclick="validaFormCliente()" class="btn btn-light" style="font-weight: 500;">Confirmar</button>
+	        </div>
+	    </div>
 
 	<?php } ?>
 
@@ -196,9 +156,9 @@
     const status = urlParams.get('status');
 
     if (status === 'ok') {
-        alert('Cadastro realizado com sucesso!');
+        alert('Operação realizada com sucesso!');
     } else if (status === 'falha') {
-        alert('Erro ao cadastrar. Por favor, tente novamente.');
+        alert('Erro ao processar . Por favor, tente novamente.');
     }
 </script>
 

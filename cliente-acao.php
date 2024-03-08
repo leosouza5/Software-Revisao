@@ -32,7 +32,6 @@ $arrayCliente = $clienteSelecionado[0];
         </form>
 
         <h1 class="d-inline">Alterar Cliente</h1>
-        <span><button onclick="excluir()" class="btn btn-danger d-inline"> EXCLUIR</button></span>
     </div>
 
     <!-- Formulário de Alteração de Cliente -->
@@ -73,7 +72,7 @@ $arrayCliente = $clienteSelecionado[0];
         </div>
     </form>
 
-    <div class="text-center">
+    <div class="text-center fixed-bottom">
         <button onclick="validaFormClienteSemCpf()" class="btn btn-danger" style="color: white; background-color: rgb(207, 18, 35); font-weight: 500;">Confirmar Alteração</button>
         <button onclick="window.close();" class="btn btn-info">Cancelar</button>
     </div>

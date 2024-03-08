@@ -7,6 +7,9 @@ $conexao = new DbService();
 $id = $_GET['regi'];
 
 $listaClientes = $conexao->recuperar("*", "clientes", "", "nome_cliente");
+
+$nomeCliente = $conexao->recuperar("nome_cliente","clientes","id= '$id'","");
+$nomeCliente = $nomeCliente[0]['nome_cliente'];
 $listaVeiculos = $conexao->recuperar("*","vw_carros","idcliente = '$id'","");
 $listaMarca = $conexao->recuperar("*", "marca", "", "");
 #print_r($listaVeiculos);
@@ -39,7 +42,7 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
         </div>
         
         <div class="col-4 text-center">
-            <H1 style="font-size: 2rem; color:white;" >Relatorio de veiculos <br>Cliente : <?= $listaVeiculos[0]['nomecliente'] ?> </H1>
+            <H1 style="font-size: 2rem; color:white;" >Relatorio de veiculos <br>Cliente : <?= $nomeCliente ?> </H1>
         </div>
             
         <div class="col-4 text-center">
