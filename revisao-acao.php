@@ -7,11 +7,13 @@ $conexao = new DbService();
 $revisaoSelecionada = $conexao->recuperar("*","vw_revisao","id_revisao =" . $_GET['regi'],"");
 $arrayRevisao = $revisaoSelecionada['0'];
 
+$idCliente = $revisaoSelecionada[0]['idcliente'];
+
 
 #print_r($revisaoSelecionada);
 
 $listaClientes = $conexao->recuperar("*", "clientes", "", "nome_cliente");
-$listaVeiculos = $conexao->recuperar("*","vw_carros","","");
+$listaVeiculos = $conexao->recuperar("*","vw_carros","idcliente='$idCliente'","");
 $listaMarca = $conexao->recuperar("*", "marca", "", "");
 
 ?>
@@ -27,16 +29,11 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <title>Cadastro de Revisões</title>
 </head>
-<body style="background-color: #eee;">
-
-     <!-- form ficticio para excluir carro-->
-    <form id="form-excluir" action="processa-exclusao-revisao.php?regi=<?=$_GET['regi']?>" method="POST" style="display: none;">
-        <input type="hidden" name="id_revisao" value="<?=$_GET['regi']?>">
-    </form>
+<body onload="recuperarCarros('<?=  $idCliente?>')" style="background-color: #eee;">
 
     <div class="col-8 text-center">
         <h1 class="d-inline">Alterar Revisão</h1>
-        <span><button onclick="excluir()" class="btn btn-danger d-inline"> EXCLUIR</button></span>
+        
     </div>
 
     <!-- Formulário de Cadastro de Revisão -->
@@ -52,10 +49,10 @@ $listaMarca = $conexao->recuperar("*", "marca", "", "");
             <div class="form-group rounded shadow p-4">
                 <label for="cliente">Cliente</label>
                 <span style="display: none;" id="erro-revisao-cliente" class="alert alert-info ">Por favor, informe um cliente valido!</span>
-                <select class="form-control" id="cliente" name="cliente" required>
+                <select onchange="recuperarCarros(this.value)" class="form-control" id="cliente" name="cliente" required>
                     <option value="">Selecione o cliente</option>
                     <?php foreach ($listaClientes as $cliente) { ?>
-                    <option value="<?= $cliente['id'] ?>" <?php if ($cliente['id'] == $arrayRevisao['idcliente']) echo 'selected'; ?>><?= $cliente['nome_cliente'] ?></option>
+                    <option value="<?= $cliente['id'] ?>" <?php if ($cliente['id'] == $arrayRevisao['idcliente']) echo 'selected';?>><?= $cliente['nome_cliente'] ?></option>
                 <?php } ?>
                 </select>
             </div>

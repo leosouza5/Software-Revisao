@@ -7,6 +7,8 @@
 
 	Class DbService {
 
+		private $conexao;
+
 		public function __construct() {
 			$this->conexao = (new Conexao())->conectar();
 		}
@@ -32,7 +34,7 @@
 
 				$stmt = $pdo->prepare($sql);
 	
-				echo $sql;
+				#echo $sql;
 
 
 				if($stmt->execute()){
@@ -241,7 +243,7 @@
 
 				$conexao = new DbService();
 				$resultado = json_encode($conexao->recuperar($campos,$tabela,$where,$orderby));
-				
+				header('Content-Type: application/json');
 				echo $resultado;
 
 				break;

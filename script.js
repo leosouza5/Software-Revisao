@@ -1,15 +1,353 @@
 var listaCliente = [];
+var listaVeiculo = [];
+var listaRevisao = [];
 
-console.log(listaCliente)
-
-
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     limparParametrosURL();
 });
 
 
+//TELA DE REVISAO
 
-function buscarCliente(){
+
+
+function buscarRevisao() {
+    let pesquisa = document.getElementById('pes_filtro_texto').value.trim();
+    let tipo = document.getElementById('pes_filtro_parametro').value;
+
+    let tbody = document.getElementById('tabela-revisao');
+    tbody.innerHTML = '';
+    let contador = 1;
+
+
+    console.log(listaRevisao)
+
+
+    listaRevisao.forEach(function (valor) {
+        switch (tipo) {
+            case 'cliente':
+                parametro = valor.nome_cliente;
+                break;
+            case 'data':
+                parametro = valor.data;
+                break;
+        }
+
+        if (parametro.indexOf(pesquisa) != -1) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <th scope="row">${contador}</th>
+                <td>${valor.nome_cliente}</td>
+                <td>${valor.data}</td>
+                <td>${valor.carro}</td>
+                <td>${valor.observacao}</td>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Ações
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" onclick="abrirAlterar(${valor.id_revisao},'revisao')" href="#">Alterar</a>
+                            <a class="dropdown-item" onclick="excluir('${valor.id_revisao}','revisao')" href="#">Excluir</a>
+                        </div>
+                    </div>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+            contador++;
+
+        }
+    });
+
+
+}
+
+
+function recuperarListaRevisao() {
+    var metodoString = "funcao:recuperar;tabela:revisoes r join leonardo.clientes cl on cl.id = r.cliente join leonardo.carros c on c.id_carro = r.carro;campos:r.id_revisao,r.observacao,cl.nome_cliente,c.nome carro,r.data;where:nada;orderby:data";
+
+    console.log(metodoString)
+    let metodo64 = btoa(metodoString);
+
+    link = "db_services.php?metodo=" + metodo64;
+    if (!document.getElementById('loading')) { //INSERE LOADING
+        let imgLoading = document.createElement('img')
+        imgLoading.id = 'loading'
+        imgLoading.src = 'img/loading.gif'
+        imgLoading.width = 50;
+        imgLoading.className = 'rounded mx-auto d-block'
+        document.getElementById('carregando').appendChild(imgLoading);
+    }
+
+    chamarAjax(link, function (resultado) {
+
+        let tbody = document.getElementById('tabela-revisao');
+        tbody.innerHTML = '';
+        let contador = 1;
+
+        document.getElementById('loading').remove() //REMOVE LOADING
+
+        resultado.forEach(function (valor, indice) {
+
+            listaRevisao.push(valor);
+
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                    <th scope="row">${contador}</th>
+                    <td>${valor.nome_cliente}</td>
+                    <td>${valor.data}</td>
+                    <td>${valor.carro}</td>
+                    <td>${valor.observacao}</td>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Ações
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" onclick="abrirAlterar(${valor.id_revisao},'revisao')" href="#">Alterar</a>
+                                <a class="dropdown-item" onclick="excluir('${valor.id_revisao}','revisao')" href="#">Excluir</a>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+            tbody.appendChild(tr);
+            contador++;
+
+        });
+
+    });
+}
+
+
+
+//TELA DE CARROS
+function buscarVeiculo() {
+    let pesquisa = document.getElementById('pes_filtro_texto').value.trim();
+    let tipo = document.getElementById('pes_filtro_parametro').value;
+
+    let tbody = document.getElementById('tabela-carros');
+    tbody.innerHTML = '';
+    let contador = 1;
+
+
+
+    listaVeiculo.forEach(function (valor) {
+        switch (tipo) {
+            case 'carro':
+                parametro = valor.nome;
+
+                break;
+            case 'cliente':
+                parametro = valor.nomecliente;
+                break;
+            case 'marca':
+                parametro = valor.marca;
+        }
+
+        if (parametro.indexOf(pesquisa) != -1) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                  <th scope="row no-gutters">${contador}</th>
+                      <td>${valor.nome}</td>
+                      <td>${valor.marca}</td>
+                      <td>${valor.nomecliente}</td>
+                      <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Ações
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" onclick="abrirAlterar(${valor.id_carro},'carros')" href="#">Alterar</a>
+                                <a class="dropdown-item" onclick="excluir('${valor.id_carro}','veiculo')" href="#">Excluir</a>
+                            </div>
+                        </div>
+                      </td>
+                `;
+
+            tbody.appendChild(tr);
+            contador++;
+
+        }
+    });
+
+
+}
+
+
+
+
+
+
+
+function recuperarListaCarros() {
+
+
+    var metodoString = "funcao:recuperar;tabela:vw_carros;campos:*;where:nada;orderby:marca";
+
+    let metodo64 = btoa(metodoString);
+
+    link = "db_services.php?metodo=" + metodo64;
+
+    console.log(link);
+    if (!document.getElementById('loading')) { //INSERE LOADING
+        let imgLoading = document.createElement('img')
+        imgLoading.id = 'loading'
+        imgLoading.src = 'img/loading.gif'
+        imgLoading.width = 50;
+        imgLoading.className = 'rounded mx-auto d-block'
+        document.getElementById('carregando').appendChild(imgLoading);
+    }
+
+    chamarAjax(link, function (resultado) {
+
+        let tbody = document.getElementById('tabela-carros');
+        tbody.innerHTML = '';
+        let contador = 1;
+
+        document.getElementById('loading').remove() //REMOVE LOADING
+
+        resultado.forEach(function (valor, indice) {
+
+            listaVeiculo.push(valor);
+
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                      <th scope="row no-gutters">${contador}</th>
+                      <td>${valor.nome}</td>
+                      <td>${valor.marca}</td>
+                      <td>${valor.nomecliente}</td>
+                      <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Ações
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" onclick="abrirAlterar(${valor.id_carro},'carros')" href="#">Alterar</a>
+                                <a class="dropdown-item" onclick="excluir('${valor.id_carro}','veiculo')" href="#">Excluir</a>
+                            </div>
+                        </div>
+                      </td>
+                `;
+
+            tbody.appendChild(tr);
+            contador++;
+
+        });
+
+    });
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+//TELA CLIENTE
+
+function abrirListaCarros(id) {
+
+    let metodoString = "funcao:recuperar;tabela:vw_carros;campos:*;where:idcliente = '" + id + "';orderby:nome";
+    let metodo64 = btoa(metodoString);
+    let link = "db_services.php?metodo=" + metodo64;
+    let tbody = document.getElementById('table-modal');
+
+    $('#modal-carros-cliente').modal('toggle');
+    tbody.innerHTML = '';
+
+    if (!document.getElementById('loading')) { //INSERE LOADING
+        let imgLoading = document.createElement('img')
+        imgLoading.id = 'loading'
+        imgLoading.src = 'img/loading.gif'
+        imgLoading.width = 50;
+        imgLoading.className = 'rounded mx-auto d-block'
+        document.getElementById('table-modal').appendChild(imgLoading);
+    }
+
+
+    chamarAjax(link, function (resultado) {
+
+        document.getElementById('loading').remove()
+
+
+        let contador = 1;
+
+
+        if (resultado.length == 0) {
+            var tr = document.createElement('tr');
+            tr.className = 'hover';
+
+
+            tr.innerHTML = `
+                    <th scope="row">
+                        
+                    </th>
+                    <td>
+                        Nenhum Veiculo cadastrado!
+                    </td>
+                    <td>
+                        
+                    </td>
+                    <td>
+                        
+                    </td>
+
+
+            `;
+            tbody.appendChild(tr);
+
+
+            return;
+
+        }
+
+
+
+
+        resultado.forEach(function (valor) {
+
+            var tr = document.createElement('tr');
+            tr.className = 'hover';
+
+
+            tr.innerHTML = `
+                    <th scope="row">
+                        ${contador}
+                    </th>
+                    <td>
+                        ${valor.nome}
+                    </td>
+                    <td>
+                        ${valor.marca}
+                    </td>
+                    <td>
+                        ${valor.nomecliente}
+                    </td>
+
+
+            `;
+
+            contador++;
+
+            tbody.appendChild(tr);
+
+
+        });
+
+    });
+
+}
+
+
+function buscarCliente() {
     let pesquisa = document.getElementById('pes_filtro_texto').value.trim();
     let tipo = document.getElementById('pes_filtro_parametro').value;
 
@@ -17,11 +355,13 @@ function buscarCliente(){
     tbody.innerHTML = '';
     let contador = 1;
 
-    listaCliente.forEach(function(valor){
+
+
+    listaCliente.forEach(function (valor) {
         parametro = tipo == 'nome_cliente' ? valor.nome_cliente : valor.id;
-        if(parametro.indexOf(pesquisa) != -1){  
+        if (parametro.indexOf(pesquisa) != -1) {
             let tr = document.createElement('tr');
-                tr.innerHTML = `
+            tr.innerHTML = `
                   <th scope="row">${contador}</th>
                   <td>${valor.nome_cliente}</td>
                   <td>${valor.id}</td>
@@ -39,8 +379,8 @@ function buscarCliente(){
                   </td>
                 `;
 
-                tbody.appendChild(tr);
-                contador++;
+            tbody.appendChild(tr);
+            contador++;
 
         }
     });
@@ -48,44 +388,44 @@ function buscarCliente(){
 
 }
 
-function recuperarListaClientes(metodo){
+function recuperarListaClientes() {
 
 
-        var metodoString ="funcao:recuperar;tabela:clientes;campos:*;where:nada;orderby:nome_cliente";
+    var metodoString = "funcao:recuperar;tabela:clientes;campos:*;where:nada;orderby:nome_cliente";
 
-        console.log(metodoString)
-        let metodo64 = btoa(metodoString);
+    console.log(metodoString)
+    let metodo64 = btoa(metodoString);
 
-        link = "db_services.php?metodo=" + metodo64;
+    link = "db_services.php?metodo=" + metodo64;
 
-        console.log(link);
-        if(!document.getElementById('loading')){        //INSERE LOADING
-            let imgLoading = document.createElement('img')
-            imgLoading.id = 'loading'
-            imgLoading.src = 'img/loading.gif'
-            imgLoading.width = 50;
-            imgLoading.className = 'rounded mx-auto d-block'
-            document.getElementById('carregando').appendChild(imgLoading);
-        }
+    console.log(link);
+    if (!document.getElementById('loading')) { //INSERE LOADING
+        let imgLoading = document.createElement('img')
+        imgLoading.id = 'loading'
+        imgLoading.src = 'img/loading.gif'
+        imgLoading.width = 50;
+        imgLoading.className = 'rounded mx-auto d-block'
+        document.getElementById('carregando').appendChild(imgLoading);
+    }
 
-        chamarAjax(link,function(resultado){
+    chamarAjax(link, function (resultado) {
 
-            let tbody = document.getElementById('tabela-clientes');
-            tbody.innerHTML = '';
-            let contador = 1;
-            
-           document.getElementById('loading').remove()    //REMOVE LOADING
+        let tbody = document.getElementById('tabela-clientes');
+        tbody.innerHTML = '';
+        let contador = 1;
 
-            resultado.forEach(function(valor,indice){
+        document.getElementById('loading').remove() //REMOVE LOADING
 
-                listaCliente.push(valor);
-                
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
+        resultado.forEach(function (valor, indice) {
+
+            listaCliente.push(valor);
+
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
                       <th scope="row">${contador}</th>
                       <td>${valor.nome_cliente}</td>
                       <td>${valor.id}</td>
-                      <td><button onclick="abrirListaCarros('${valor.id}')" class="btn btn-info">Visualizar</button></td>
+                      <td><button  onclick="abrirListaCarros('${valor.id}')" class="btn btn-info">Visualizar</button></td>
                       <td>
                         <div class="dropdown">
                           <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -99,60 +439,69 @@ function recuperarListaClientes(metodo){
                       </td>
                 `;
 
-                tbody.appendChild(tr);
-                contador++;
+            tbody.appendChild(tr);
+            contador++;
 
-            });
-            
         });
 
-    
+    });
+
+
 }
 
 
-function recuperarCarros(cliente){
-    var metodoString = "funcao:recuperar;tabela:carros;campos:id_carro,nome;where:cliente='" + cliente + "'";
+function recuperarCarros(cliente) {
+    var metodoString = "funcao:recuperar;tabela:carros;campos:id_carro,nome;where:cliente='" + cliente + "';orderby:nada";
 
     var metodo64 = btoa(metodoString);
 
-    link ="db_services.php?metodo=" + metodo64;
+    link = "db_services.php?metodo=" + metodo64;
 
-    chamarAjax(link,function(resultado){
+    chamarAjax(link, function (resultado) {
         let select = document.getElementById('carro');
-        
+
         select.innerHTML = '';
 
-        if(!resultado || resultado.length === 0){
-            option =  document.createElement('option');
+        if (!resultado || resultado.length === 0) {
+            option = document.createElement('option');
             option.value = ''
-            option.innerHTML = "Nenhum Carro cadastrado!"          //pegando o nome e id do carro atribuindo a um OPTION e inserindo no select
+            option.innerHTML = "Nenhum Carro cadastrado!" //pegando o nome e id do carro atribuindo a um OPTION e inserindo no select
             select.appendChild(option);
-        }else{
-            resultado.forEach(function(valor,indice){
-                option =  document.createElement('option');
+        } else {
+            resultado.forEach(function (valor, indice) {
+                option = document.createElement('option');
                 option.value = valor.id_carro;
-                option.innerHTML = valor.nome;          //pegando o nome e id do carro atribuindo a um OPTION e inserindo no select
+                option.innerHTML = valor.nome; //pegando o nome e id do carro atribuindo a um OPTION e inserindo no select
                 select.appendChild(option);
             });
         }
     });
 
-    
+
 }
 
 
-function chamarAjax(link,callback){
+function chamarAjax(link, callback) {
     ajax = new XMLHttpRequest();
 
-    ajax.open('GET',link,true); 
+    ajax.open('GET', link, true);
 
     ajax.onreadystatechange = () => {
-        if(ajax.status == 200 && ajax.readyState == 4){
+        if (ajax.status == 200 && ajax.readyState == 4) {
 
-            let resultado = JSON.parse(ajax.responseText);
-            console.log(resultado)
+            var contentType = ajax.getResponseHeader("Content-Type");
+            var resultado;
+            if (contentType && contentType.indexOf("application/json") !== -1) {
 
-            callback(resultado);            
+                console.log('so json')
+                resultado = JSON.parse(ajax.responseText);
+            } else {
+                console.log('nao so json')
+                resultado = ajax.responseText;
+            }
+            console.log(resultado);
+
+            callback(resultado);
         }
     };
 
@@ -163,7 +512,7 @@ function chamarAjax(link,callback){
 
 
 
-function soNumero(e){
+function soNumero(e) {
     var tecla = e.which || e.keyCode;
     if (tecla < 48 || tecla > 57) {
         e.preventDefault();
@@ -190,29 +539,29 @@ function mascaraCelular(campo) {
 
 
 
-function validaCPF(cpf){
+function validaCPF(cpf) {
 
-    if(cpf != '' && !calculoValidaCPF(cpf)){
+    if (cpf != '' && !calculoValidaCPF(cpf)) {
         alert("CPF INVALIDO")
         document.getElementById('dados-cliente-cpf').value = '';
         document.getElementById('enviar').disabled = true;
-    }else{
+    } else {
         document.getElementById('enviar').disabled = false;
     }
 
 
-    
+
 }
 
 function calculoValidaCPF(cpf) {
     // Remover caracteres não numéricos
     cpf = cpf.replace(/[^\d]/g, '');
-    
+
     // Verificar se o CPF possui 11 dígitos
     if (cpf.length !== 11) {
         return false;
     }
-    
+
     // Verificar se todos os dígitos são iguais
     var cpfInvalidos = [
         '00000000000', '11111111111', '22222222222', '33333333333', '44444444444',
@@ -257,11 +606,11 @@ function limparCPF(cpf) {
     cpf = cpf.replace('-', '');
     return cpf;
 }
-        
 
 
 
-function verificaRetorno(){
+
+function verificaRetorno() {
     const urlParams = new URLSearchParams(window.location.search);
     const status = urlParams.get('status');
 
@@ -273,15 +622,15 @@ function verificaRetorno(){
 }
 
 
-function alternar(id1,id2){
+function alternar(id1, id2) {
     div1 = document.getElementById(id1);
     div2 = document.getElementById(id2);
 
     console.log(div1.getAttribute("hidden"))
 
 
-    if(div1.getAttribute("hidden") != null){
-        div2.setAttribute("hidden","");
+    if (div1.getAttribute("hidden") != null) {
+        div2.setAttribute("hidden", "");
         div1.removeAttribute("hidden");
     }
 }
@@ -289,41 +638,38 @@ function alternar(id1,id2){
 
 
 
-function paginaPorPost(valor,rotina) {
-        
-        //criando formulario ficticio para recarregar pagina
+function paginaPorPost(valor, rotina) {
 
-        var form = document.createElement('form');
-        form.setAttribute('method', 'post');
-        form.setAttribute('action', rotina); 
+    //criando formulario ficticio para recarregar pagina
 
-        // adiciona o campo de input com o valor a ser passado
-        var input = document.createElement('input');
-        input.setAttribute('type', 'hidden');
-        input.setAttribute('name', 'acao');
-        input.setAttribute('value', valor);
-        form.appendChild(input);
+    var form = document.createElement('form');
+    form.setAttribute('method', 'post');
+    form.setAttribute('action', rotina);
 
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
+    // adiciona o campo de input com o valor a ser passado
+    var input = document.createElement('input');
+    input.setAttribute('type', 'hidden');
+    input.setAttribute('name', 'acao');
+    input.setAttribute('value', valor);
+    form.appendChild(input);
 
 
-
-function abrirAlterar(id,rotina){
-      
-    var novaJanela = window.open(rotina+"-acao.php?regi=" + id, "NovaJanela", "width=1280,height=720");
-}
-
-function abrirListaCarros(id){
-    var novaJanela = window.open("listarCarros.php?regi=" + id, "NovaJanela", "width=1280,height=720");
-  
+    document.body.appendChild(form);
+    form.submit();
 }
 
 
 
-function validaFormCliente(){
+function abrirAlterar(id, rotina) {
+
+    var novaJanela = window.open(rotina + "-acao.php?regi=" + id, "NovaJanela", "width=1280,height=720");
+}
+
+
+
+
+
+function validaFormCliente() {
 
     var form = document.getElementById('form-cadclie')
     var nomeCliente = document.getElementById('dados-cliente-nome').value.trim()
@@ -336,36 +682,36 @@ function validaFormCliente(){
     var campoErroCpf = document.getElementById('erro-cliente-cpf')
     var campoErroTel = document.getElementById('erro-cliente-tel')
 
-    if(nomeCliente == ''){
-        campoErroNome.style.display ='inherit'   //verifica se existe um nome informado
+    if (nomeCliente == '') {
+        campoErroNome.style.display = 'inherit' //verifica se existe um nome informado
         return
-    }else{
-        campoErroNome.style.display ='none'
+    } else {
+        campoErroNome.style.display = 'none'
     }
 
-    if(GenCliente == 'false'){
-        campoErroGen.style.display ='inherit'   //verifica se informou um genero
+    if (GenCliente == 'false') {
+        campoErroGen.style.display = 'inherit' //verifica se informou um genero
         return
-    }else{
-        campoErroGen.style.display ='none'
+    } else {
+        campoErroGen.style.display = 'none'
     }
 
     if (CpfCliente.length < 11 || CpfCliente.length > 14) {
         campoErroCpf.style.display = 'inherit'; // Verifica tamanho do cpf
         return;
     } else {
-        verificarCPF(CpfCliente, function (existe) {             //verifica se cpf ou cnpj ja esta cadastrado
+        verificarCPF(CpfCliente, function (existe) { //verifica se cpf ou cnpj ja esta cadastrado
             if (existe) {
                 alert('CPF OU CNPJ JA ESTA CADASTRADO')
                 campoErroCpf.style.display = 'inherit';
             } else {
                 campoErroCpf.style.display = 'none';
                 if (TelCliente.length != 15) {
-                    campoErroTel.style.display = 'inherit';  //verifica se telefone esta no padrao
+                    campoErroTel.style.display = 'inherit'; //verifica se telefone esta no padrao
                     return;
                 } else {
                     campoErroTel.style.display = 'none';
-                    form.submit(); 
+                    form.submit();
                 }
             }
         });
@@ -373,7 +719,7 @@ function validaFormCliente(){
 
 }
 
-function validaFormClienteSemCpf(){
+function validaFormClienteSemCpf() {
 
     var form = document.getElementById('form-cadclie')
     var nomeCliente = document.getElementById('dados-cliente-nome').value.trim()
@@ -386,34 +732,34 @@ function validaFormClienteSemCpf(){
     var campoErroCpf = document.getElementById('erro-cliente-cpf')
     var campoErroTel = document.getElementById('erro-cliente-tel')
 
-    if(nomeCliente == ''){
-        campoErroNome.style.display ='inherit'   //verifica se existe um nome informado
+    if (nomeCliente == '') {
+        campoErroNome.style.display = 'inherit' //verifica se existe um nome informado
         return
-    }else{
-        campoErroNome.style.display ='none'
+    } else {
+        campoErroNome.style.display = 'none'
     }
 
-    if(GenCliente == 'false'){
-        campoErroGen.style.display ='inherit'   //verifica se informou um genero
+    if (GenCliente == 'false') {
+        campoErroGen.style.display = 'inherit' //verifica se informou um genero
         return
-    }else{
-        campoErroGen.style.display ='none'
+    } else {
+        campoErroGen.style.display = 'none'
     }
 
     if (CpfCliente.length < 11 || CpfCliente.length > 14) {
         campoErroCpf.style.display = 'inherit'; // Verifica tamanho do cpf
         return;
-    }else {
+    } else {
         campoErroCpf.style.display = 'none';
         if (TelCliente.length > 15) {
-            campoErroTel.style.display = 'inherit';  //verifica se telefone esta no padrao
+            campoErroTel.style.display = 'inherit'; //verifica se telefone esta no padrao
             return;
         } else {
             campoErroTel.style.display = 'none';
-            form.submit(); 
+            form.submit();
         }
     }
-    
+
 }
 
 
@@ -525,7 +871,7 @@ function validaFormRevisao() {
 
 
 
-function verificarCPF(cpf,callback) {
+function verificarCPF(cpf, callback) {
 
 
     var ajax = new XMLHttpRequest();
@@ -547,38 +893,24 @@ function verificarCPF(cpf,callback) {
 
 function excluir(regi, tabela) {
     if (confirm('Tem certeza de que deseja excluir este registro e todos os seus vinculos ??')) {
-        var link;
-        switch(tabela) {
-            case 'cliente':
-                link = 'processa-exclusao-cliente.php?regi=' + regi + '&origem=' + tabela;
-                break;
+        var link = 'processa-exclusao.php?regi=' + regi + '&origem=' + tabela;
 
-            case 'veiculo':
-                link = 'processa-exclusao-veiculo.php?regi=' + regi + '&origem=' + tabela;
-                break;
 
-            case 'revisao':
-                link = 'processa-exclusao-revisao.php?regi=' + regi + '&origem=' + tabela;
-                break;
-        }
+        chamarAjax(link, function (resultado) {
+            alert(resultado);
 
-        var ajax = new XMLHttpRequest();
-
-        ajax.open('GET', link, true);
-
-        ajax.onreadystatechange = function () {
-            if (ajax.readyState == 4) {
-                if (ajax.status == 200) {
-                    alert(ajax.responseText); // Exibir resposta do servidor em um alerta
-                    location.reload();
-                } else {
-                    alert("Erro: " + ajax.status); // Exibir mensagem de erro se houver algum problema com a requisição
-                }
+            switch (tabela) {
+                case 'cliente':
+                    recuperarListaClientes();
+                    break;
+                case 'veiculo':
+                    recuperarListaCarros();
+                    break;
+                case 'revisao':
+                    recuperarListaRevisao();
+                    break;
             }
-        };
-
-        ajax.send();
-
+        })
     }
 
 
@@ -587,7 +919,7 @@ function excluir(regi, tabela) {
 
 
 
-function requestConteudo(link,divExterna,divInterna,origem){
+function requestConteudo(link, divExterna, divInterna, origem) {
 
     var ajax = new XMLHttpRequest();
     ajax.open('GET', link, true);
@@ -623,10 +955,10 @@ function requestConteudo(link,divExterna,divInterna,origem){
 
 
 
-            
 
 
-        }else {
+
+        } else {
             console.error('Erro ao carregar o conteúdo:', ajax.status);
         }
     };
@@ -640,4 +972,3 @@ function requestConteudo(link,divExterna,divInterna,origem){
 function limparParametrosURL() {
     window.history.replaceState({}, document.title, window.location.pathname);
 }
-
